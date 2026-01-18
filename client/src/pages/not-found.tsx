@@ -1,19 +1,34 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { Link } from "wouter";
+import { FileQuestion, Home, Store } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md mx-4">
-        <CardContent className="pt-6">
-          <div className="flex mb-4 gap-2">
-            <AlertCircle className="h-8 w-8 text-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">404 Page Not Found</h1>
+    <div className="container mx-auto px-4 py-24 flex items-center justify-center min-h-[60vh]">
+      <Card className="max-w-md text-center">
+        <CardHeader>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+            <FileQuestion className="h-8 w-8 text-muted-foreground" />
           </div>
-
-          <p className="mt-4 text-sm text-gray-600">
-            Did you forget to add the page to the router?
-          </p>
+          <CardTitle className="text-2xl">Page Not Found</CardTitle>
+          <CardDescription>
+            The page you're looking for doesn't exist or has been moved.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link href="/">
+            <Button className="gap-2" data-testid="button-go-home">
+              <Home className="h-4 w-4" />
+              Go Home
+            </Button>
+          </Link>
+          <Link href="/marketplace">
+            <Button variant="outline" className="gap-2" data-testid="button-browse-market">
+              <Store className="h-4 w-4" />
+              Browse Marketplace
+            </Button>
+          </Link>
         </CardContent>
       </Card>
     </div>
