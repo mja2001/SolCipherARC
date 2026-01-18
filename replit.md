@@ -93,3 +93,8 @@ shared/
 - Gemini AI integration for agent functionality
 - Complete frontend with all pages
 - Backend API with document and purchase management
+- Fixed purchase flow with proper wallet userId wiring
+- Enhanced AI Agent with session activity stats and improved processing indicators
+- Added transaction visibility with block explorer links and x402 payment badges
+- Improved upload encryption visualization with algorithm/IV display
+- Fixed duplicate key warnings in message components

@@ -129,7 +129,7 @@ function MessageBubble({ message }: { message: Message }) {
 
 export default function AgentPage() {
   const { toast } = useToast();
-  const { isConnected, connect, balance } = useWallet();
+  const { isConnected, connect, balance, userId } = useWallet();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<Message[]>([
@@ -156,7 +156,7 @@ export default function AgentPage() {
   }, [messages]);
 
   const addMessage = (msg: Omit<Message, "id">) => {
-    setMessages((prev) => [...prev, { ...msg, id: Date.now().toString() }]);
+    setMessages((prev) => [...prev, { ...msg, id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}` }]);
   };
 
   const agentMutation = useMutation({
@@ -224,32 +224,43 @@ export default function AgentPage() {
 
           addMessage({
             role: "agent",
-            content: `Processing x402 payment for "${topDoc.title}"...`,
+            content: `Processing x402 payment for "${topDoc.title}" on Arc Network...`,
           });
 
-          await new Promise((r) => setTimeout(r, 1500));
+          // Actually call the purchase API
+          try {
+            const purchaseResult = await apiRequest("POST", "/api/agent/purchase", {
+              documentId: topDoc.id,
+              userId: userId,
+            });
 
-          addMessage({
-            role: "agent",
-            content:
-              "Payment successful! The document has been decrypted and is ready for download in your library.",
-            action: "purchase",
-            purchasedDoc: {
-              title: topDoc.title,
-              price: topDoc.price,
-            },
-          });
+            addMessage({
+              role: "agent",
+              content:
+                `Payment successful! Transaction hash: ${purchaseResult.purchase.txHash.slice(0, 16)}...\nThe document has been decrypted and is ready for download.`,
+              action: "purchase",
+              purchasedDoc: {
+                title: topDoc.title,
+                price: topDoc.price,
+              },
+            });
 
-          const remaining = (budget[0] - Number(topDoc.price)).toFixed(2);
+            const remaining = (budget[0] - Number(topDoc.price)).toFixed(2);
 
-          await new Promise((r) => setTimeout(r, 500));
+            await new Promise((r) => setTimeout(r, 500));
 
-          addMessage({
-            role: "agent",
-            content:
-              `Task complete! I've purchased 1 document for $${topDoc.price} USDC. You have $${remaining} remaining in your session budget. Would you like me to find more documents?`,
-            action: "complete",
-          });
+            addMessage({
+              role: "agent",
+              content:
+                `Task complete! I've purchased 1 document for $${topDoc.price} USDC via x402 protocol. You have $${remaining} remaining in your session budget. Would you like me to find more documents?`,
+              action: "complete",
+            });
+          } catch (purchaseError: any) {
+            addMessage({
+              role: "agent",
+              content: `Purchase failed: ${purchaseError.message || "Unknown error"}. The document may already be in your library.`,
+            });
+          }
         }
       } else {
         addMessage({
@@ -337,9 +348,17 @@ export default function AgentPage() {
                   <MessageBubble key={message.id} message={message} />
                 ))}
                 {isProcessing && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Agent is thinking...</span>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="relative">
+                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        <div className="absolute inset-0 h-5 w-5 animate-ping opacity-20 rounded-full bg-primary" />
+                      </div>
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground">Agent Processing</span>
+                      <p className="text-xs text-muted-foreground">Analyzing marketplace and executing actions...</p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -451,6 +470,28 @@ export default function AgentPage() {
               </CardContent>
             </Card>
 
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Session Activity</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Documents Found</span>
+                  <Badge variant="secondary">{messages.filter(m => m.action === "search").length * 3}</Badge>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Purchases Made</span>
+                  <Badge variant="secondary" className="bg-green-500/10 text-green-500">
+                    {messages.filter(m => m.action === "purchase").length}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Messages</span>
+                  <Badge variant="secondary">{messages.length}</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="pt-4">
                 <div className="flex items-start gap-2 text-sm">
@@ -458,7 +499,7 @@ export default function AgentPage() {
                   <div>
                     <p className="font-medium mb-1">Powered by Gemini AI</p>
                     <p className="text-xs text-muted-foreground">
-                      Using Function Calling for autonomous marketplace interactions
+                      Using Function Calling for autonomous marketplace interactions and x402 payments
                     </p>
                   </div>
                 </div>

@@ -167,7 +167,7 @@ function EmptyState({ searchQuery }: { searchQuery: string }) {
 
 export default function Marketplace() {
   const { toast } = useToast();
-  const { isConnected, connect } = useWallet();
+  const { isConnected, connect, userId } = useWallet();
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState("newest");
@@ -242,13 +242,13 @@ export default function Marketplace() {
     }
 
     try {
-      // x402 payment flow
+      // x402 payment flow with Arc Network
       const response = await fetch("/api/purchases", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           documentId: document.id,
-          buyerId: "demo-user", // In production, use actual userId from wallet
+          buyerId: userId,
         }),
       });
 

@@ -79,46 +79,69 @@ function TransactionRow({
   const amount = isSeller 
     ? `+$${Number(purchase.sellerRevenueUsdc).toFixed(2)}`
     : `-$${Number(purchase.amountUsdc).toFixed(2)}`;
+
+  const txHashShort = purchase.txHash ? `${purchase.txHash.slice(0, 8)}...${purchase.txHash.slice(-6)}` : "";
   
   return (
-    <div className="flex items-center justify-between py-3 border-b last:border-0">
-      <div className="flex items-center gap-3">
-        <div className={`flex h-9 w-9 items-center justify-center rounded-full ${
-          isSeller ? "bg-green-500/10" : "bg-primary/10"
-        }`}>
-          {purchase.purchasedByAgent ? (
-            <Bot className="h-4 w-4 text-primary" />
-          ) : isSeller ? (
-            <ArrowUpRight className="h-4 w-4 text-green-500" />
-          ) : (
-            <ArrowDownRight className="h-4 w-4 text-primary" />
-          )}
-        </div>
-        <div>
-          <p className="text-sm font-medium line-clamp-1">
-            {purchase.document?.title || "Document Purchase"}
-          </p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            <span>{new Date(purchase.createdAt).toLocaleDateString()}</span>
-            {purchase.purchasedByAgent && (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                AI Agent
-              </Badge>
+    <div className="py-3 border-b last:border-0">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`flex h-9 w-9 items-center justify-center rounded-full ${
+            isSeller ? "bg-green-500/10" : "bg-primary/10"
+          }`}>
+            {purchase.purchasedByAgent ? (
+              <Bot className="h-4 w-4 text-primary" />
+            ) : isSeller ? (
+              <ArrowUpRight className="h-4 w-4 text-green-500" />
+            ) : (
+              <ArrowDownRight className="h-4 w-4 text-primary" />
             )}
           </div>
+          <div>
+            <p className="text-sm font-medium line-clamp-1">
+              {purchase.document?.title || "Document Purchase"}
+            </p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              <span>{new Date(purchase.createdAt).toLocaleDateString()}</span>
+              {purchase.purchasedByAgent && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                  AI Agent
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className={`font-mono font-medium ${isSeller ? "text-green-500" : ""}`}>
+            {amount}
+          </p>
+          <Badge 
+            variant={purchase.status === "completed" ? "secondary" : "outline"}
+            className={`text-[10px] ${purchase.status === "completed" ? "bg-green-500/10 text-green-500" : ""}`}
+          >
+            {purchase.status === "completed" ? "Settled" : purchase.status}
+          </Badge>
         </div>
       </div>
-      <div className="text-right">
-        <p className={`font-mono font-medium ${isSeller ? "text-green-500" : ""}`}>
-          {amount}
-        </p>
-        <Badge 
-          variant={purchase.status === "completed" ? "secondary" : "outline"}
-          className="text-[10px]"
+      {/* Transaction details */}
+      <div className="mt-2 ml-12 flex flex-wrap items-center gap-2 text-xs">
+        <a 
+          href={`https://explorer.arc.money/tx/${purchase.txHash}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 text-primary hover:underline font-mono"
+          data-testid={`link-tx-${purchase.id}`}
         >
-          {purchase.status}
-        </Badge>
+          <ExternalLink className="h-3 w-3" />
+          {txHashShort}
+        </a>
+        <span className="text-muted-foreground">on Arc Network</span>
+        {purchase.x402PaymentId && (
+          <Badge variant="outline" className="text-[10px] font-mono">
+            x402
+          </Badge>
+        )}
       </div>
     </div>
   );

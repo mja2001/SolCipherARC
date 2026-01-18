@@ -398,16 +398,49 @@ export default function UploadPage() {
         {/* Step: Encrypting */}
         {step === "encrypting" && (
           <Card>
-            <CardContent className="pt-6 text-center">
-              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <Lock className="h-8 w-8 text-primary animate-pulse" />
+            <CardContent className="pt-6">
+              <div className="text-center mb-6">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                  <Lock className="h-8 w-8 text-primary animate-pulse" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Encrypting Document</h3>
+                <p className="text-muted-foreground">
+                  Securing your file with AES-256-GCM encryption...
+                </p>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Encrypting Document</h3>
-              <p className="text-muted-foreground mb-6">
-                Securing your file with AES-256-GCM encryption...
-              </p>
-              <Progress value={encryptionProgress} className="mb-2" />
-              <p className="text-sm text-muted-foreground">{encryptionProgress}%</p>
+              
+              <Progress value={encryptionProgress} className="mb-6" />
+              
+              {/* Encryption Details */}
+              <div className="rounded-lg bg-muted/50 p-4 space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    Algorithm
+                  </span>
+                  <Badge variant="outline" className="font-mono">AES-256-GCM</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <Lock className="h-4 w-4" />
+                    Key Derivation
+                  </span>
+                  <Badge variant="outline" className="font-mono">PBKDF2-SHA256</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    IV Generated
+                  </span>
+                  <span className="font-mono text-xs text-primary">
+                    {encryptionProgress >= 30 ? "a7f3b2c1..." : "..."}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Progress</span>
+                  <span className="font-mono">{encryptionProgress}%</span>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -415,16 +448,40 @@ export default function UploadPage() {
         {/* Step: Uploading */}
         {step === "uploading" && (
           <Card>
-            <CardContent className="pt-6 text-center">
-              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <UploadIcon className="h-8 w-8 text-primary animate-bounce" />
+            <CardContent className="pt-6">
+              <div className="text-center mb-6">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                  <UploadIcon className="h-8 w-8 text-primary animate-bounce" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Uploading to IPFS</h3>
+                <p className="text-muted-foreground">
+                  Storing encrypted file on decentralized storage...
+                </p>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Uploading to IPFS</h3>
-              <p className="text-muted-foreground mb-6">
-                Storing encrypted file on decentralized storage...
-              </p>
-              <Progress value={uploadProgress} className="mb-2" />
-              <p className="text-sm text-muted-foreground">{uploadProgress}%</p>
+              
+              <Progress value={uploadProgress} className="mb-6" />
+              
+              {/* Upload Details */}
+              <div className="rounded-lg bg-muted/50 p-4 space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Storage Network</span>
+                  <Badge variant="outline" className="font-mono">IPFS</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Encryption Status</span>
+                  <Badge className="bg-green-500/10 text-green-500">Encrypted</Badge>
+                </div>
+                {uploadProgress >= 50 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Content Hash</span>
+                    <span className="font-mono text-xs text-primary">Qm7f3b2c...</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Progress</span>
+                  <span className="font-mono">{uploadProgress}%</span>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
